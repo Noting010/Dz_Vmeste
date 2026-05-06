@@ -2,7 +2,7 @@ const boardEl = document.getElementById('board');
 const ROWS = 8, COLS = 8;
 let selectedPiece = null;
 let currentTurn = 'white';
-let inCaptureChain = false; // Для продолжения взятий аосле первого
+let inCaptureChain = false;
 let whiteWins = 0;
 let blackWins = 0;
 const winsToWinMatch = 3;
@@ -35,26 +35,36 @@ function addPiece(cell, color) {
     cell.appendChild(piece);
 }
 
+function getDiagonalPath(startRow, startCol, endRow, endCol) {
+    const path = [];
+    const dRow = endRow > startRow ? 1 : -1;
+    const dCol = endCol > startCol ? 1 : -1;
+    let r = startRow + dRow;
+    let c = startCol + dCol;
+    while (r !== endRow && c !== endCol) {
+        path.push([r, c]);
+        r += dRow;
+        c += dCol;
+    }
+    return path;
+}
+
 function handleClick(e) {
     const cell = e.currentTarget;
     const piece = cell.querySelector('.piece');
 
     if (selectedPiece) {
-        // Пытаемся сделать ход выбранной шашкой
         if (isValidMove(selectedPiece, cell)) {
-            const wasCapture = Math.abs(parseInt(cell.dataset.row) - parseInt(selectedPiece.parentElement.dataset.row)) === 2;
-            makeMove(selectedPiece, cell);
-            
-            // Продолжаем или заканчиваем ход
-            if (wasCapture && hasCaptures(selectedPiece)) {
-                inCaptureChain = true; // Цепочка взятий
+            const movedPiece = selectedPiece;
+            makeMove(movedPiece, cell);
+
+            if (inCaptureChain) {
                 updateBoardHighlight();
             } else {
                 endTurn();
                 checkEndGame();
             }
         } else {
-            // Неверный ход
             if (hasMandatoryCapture(currentTurn)) {
                 alert('Взятие обязательно! Выберите допустимый ход съедания.');
             } else {
@@ -66,9 +76,7 @@ function handleClick(e) {
         return;
     }
 
-    // Выбор шашки
     if (piece && piece.dataset.color === currentTurn) {
-        // Если не была сьедена шашка или это первая разрешаем
         if (!inCaptureChain || hasCaptures(piece)) {
             selectedPiece = piece;
             updateBoardHighlight();
@@ -95,25 +103,47 @@ function hasCaptures(piece) {
     const col = parseInt(fromCell.dataset.col);
     const color = piece.dataset.color;
     const isKing = piece.dataset.king === 'true';
-    const directions = isKing ? [[-2,-2],[-2,2],[2,-2],[2,2]] : 
-                      (color === 'white' ? [[-2,-2],[-2,2]] : [[2,-2],[2,2]]);
-    
-    for (let [dR, dC] of directions) {
-        const endRow = row + dR;
-        const endCol = col + dC;
-        if (endRow >= 0 && endRow < ROWS && endCol >= 0 && endCol < COLS) {
+    const directions = [[-1, -1], [-1, 1], [1, -1], [1, 1]];
+
+    for (const [dr, dc] of directions) {
+        if (!isKing) {
+            const midRow = row + dr;
+            const midCol = col + dc;
+            const endRow = row + 2 * dr;
+            const endCol = col + 2 * dc;
+
+            if (endRow < 0 || endRow >= ROWS || endCol < 0 || endCol >= COLS) continue;
+
+            const midCell = document.querySelector(`[data-row="${midRow}"][data-col="${midCol}"]`);
             const endCell = document.querySelector(`[data-row="${endRow}"][data-col="${endCol}"]`);
-            if (endCell && !endCell.querySelector('.piece')) {
-                const midRow = row + Math.sign(dR);
-                const midCol = col + Math.sign(dC);
-                const midCell = document.querySelector(`[data-row="${midRow}"][data-col="${midCol}"]`);
-                const midPiece = midCell ? midCell.querySelector('.piece') : null;
-                if (midPiece && midPiece.dataset.color !== color) {
-                    return true;
+            const midPiece = midCell ? midCell.querySelector('.piece') : null;
+
+            if (midPiece && midPiece.dataset.color !== color && endCell && !endCell.querySelector('.piece')) {
+                return true;
+            }
+        } else {
+            let r = row + dr;
+            let c = col + dc;
+            let foundOpponent = false;
+
+            while (r >= 0 && r < ROWS && c >= 0 && c < COLS) {
+                const cell = document.querySelector(`[data-row="${r}"][data-col="${c}"]`);
+                const p = cell ? cell.querySelector('.piece') : null;
+
+                if (p) {
+                    if (p.dataset.color === color) break;
+                    if (foundOpponent) break;
+                    foundOpponent = true;
+                } else {
+                    if (foundOpponent) return true;
                 }
+
+                r += dr;
+                c += dc;
             }
         }
     }
+
     return false;
 }
 
@@ -124,33 +154,51 @@ function isValidMove(fromPiece, toCell) {
     const endRow = parseInt(toCell.dataset.row);
     const endCol = parseInt(toCell.dataset.col);
     const color = fromPiece.dataset.color;
-    const dir = color === 'white' ? -1 : 1;
     const isKing = fromPiece.dataset.king === 'true';
+    const dir = color === 'white' ? -1 : 1;
+
     if (toCell.querySelector('.piece')) return false;
 
     const dRow = Math.abs(endRow - startRow);
     const dCol = Math.abs(endCol - startCol);
     const hasMandatory = hasMandatoryCapture(color);
 
-    // Обязательное взятие блокирует простые ходы
-    if (hasMandatory && dRow === 1) return false;
+    if (dRow !== dCol || dRow === 0) return false;
 
-    // Простой ход
-    if (dRow === 1 && dCol === 1) {
-        const forward = isKing || (endRow - startRow) === dir;
-        return forward;
+    if (!isKing) {
+        if (hasMandatory && dRow === 1) return false;
+
+        if (dRow === 1) {
+            return (endRow - startRow) === dir;
+        }
+
+        if (dRow === 2) {
+            const midRow = startRow + (endRow > startRow ? 1 : -1);
+            const midCol = startCol + (endCol > startCol ? 1 : -1);
+            const midCell = document.querySelector(`[data-row="${midRow}"][data-col="${midCol}"]`);
+            const midPiece = midCell ? midCell.querySelector('.piece') : null;
+            return midPiece && midPiece.dataset.color !== color;
+        }
+
+        return false;
     }
 
-    // Взятие (всегда разрешено)
-    if (dRow === 2 && dCol === 2) {
-        const midRow = startRow + (endRow > startRow ? 1 : -1);
-        const midCol = startCol + (endCol > startCol ? 1 : -1);
-        const midCell = document.querySelector(`[data-row="${midRow}"][data-col="${midCol}"]`);
-        const midPiece = midCell ? midCell.querySelector('.piece') : null;
-        return midPiece && midPiece.dataset.color !== color;
+    const path = getDiagonalPath(startRow, startCol, endRow, endCol);
+    let opponentCount = 0;
+
+    for (const [r, c] of path) {
+        const cell = document.querySelector(`[data-row="${r}"][data-col="${c}"]`);
+        const p = cell ? cell.querySelector('.piece') : null;
+
+        if (p) {
+            if (p.dataset.color === color) return false;
+            opponentCount++;
+            if (opponentCount > 1) return false;
+        }
     }
 
-    return false;
+    if (opponentCount === 1) return true;
+    return opponentCount === 0 && !hasMandatory;
 }
 
 function makeMove(fromPiece, toCell) {
@@ -159,29 +207,62 @@ function makeMove(fromPiece, toCell) {
     const startCol = parseInt(fromCell.dataset.col);
     const endRow = parseInt(toCell.dataset.row);
     const endCol = parseInt(toCell.dataset.col);
+    const color = fromPiece.dataset.color;
+    const isKing = fromPiece.dataset.king === 'true';
 
-    // Удаляем съеденную
-    if (Math.abs(endRow - startRow) === 2) {
-        const midRow = startRow + (endRow > startRow ? 1 : -1);
-        const midCol = startCol + (endCol > startCol ? 1 : -1);
-        const midCell = document.querySelector(`[data-row="${midRow}"][data-col="${midCol}"]`);
-        const midPiece = midCell ? midCell.querySelector('.piece') : null;
-        if (midPiece) midCell.removeChild(midPiece);
+    let captured = false;
+
+    if (!isKing) {
+        if (Math.abs(endRow - startRow) === 2) {
+            const midRow = startRow + (endRow > startRow ? 1 : -1);
+            const midCol = startCol + (endCol > startCol ? 1 : -1);
+            const midCell = document.querySelector(`[data-row="${midRow}"][data-col="${midCol}"]`);
+            const midPiece = midCell ? midCell.querySelector('.piece') : null;
+            if (midPiece) {
+                midCell.removeChild(midPiece);
+                captured = true;
+            }
+        }
+    } else {
+        const path = getDiagonalPath(startRow, startCol, endRow, endCol);
+
+        for (const [r, c] of path) {
+            const cell = document.querySelector(`[data-row="${r}"][data-col="${c}"]`);
+            const p = cell ? cell.querySelector('.piece') : null;
+
+            if (p && p.dataset.color !== color) {
+                cell.removeChild(p);
+                captured = true;
+                break;
+            }
+        }
     }
 
     toCell.appendChild(fromPiece);
 
-    // Дамка
-    if ((fromPiece.dataset.color === 'white' && endRow === 0) || (fromPiece.dataset.color === 'black' && endRow === 7)) {
+    if ((fromPiece.dataset.color === 'white' && endRow === 0) ||
+        (fromPiece.dataset.color === 'black' && endRow === 7)) {
         fromPiece.dataset.king = 'true';
         fromPiece.classList.add('king');
     }
+
+    if (captured && hasCaptures(fromPiece)) {
+        inCaptureChain = true;
+        selectedPiece = fromPiece;
+    } else {
+        inCaptureChain = false;
+        selectedPiece = null;
+    }
+
+    updateBoardHighlight();
 }
 
 function updateBoardHighlight() {
     document.querySelectorAll('.cell').forEach(cell => cell.classList.remove('selected'));
+    document.querySelectorAll('.piece').forEach(p => p.classList.remove('selected-piece'));
     if (selectedPiece) {
         selectedPiece.parentElement.classList.add('selected');
+        selectedPiece.classList.add('selected-piece');
     }
 }
 

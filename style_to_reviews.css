@@ -1,0 +1,220 @@
+/* Модал логин */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.5);
+}
+.modal-content {
+  background: #fff;
+  margin: 15% auto;
+  padding: 2rem;
+  width: 90%;
+  max-width: 400px;
+  border-radius: 10px;
+  position: relative;
+}
+.close {
+  position: absolute;
+  right: 1rem;
+  top: 1rem;
+  font-size: 2rem;
+  cursor: pointer;
+  color: #666;
+}
+.close:hover { color: #000; }
+
+/* Отзывы */
+.reviews-main { max-width: 800px; margin: 0 auto; padding: 2rem; }
+.reviews-container { margin-top: 2rem; }
+.review-item {
+  background: #fff;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+.review-content { flex: 1; }
+.review-author { font-weight: bold; color: #ff416c; }
+.review-text { margin: 0.5rem 0; }
+.review-stars { color: #00a8ff; }
+.delete-btn {
+  background: #ff416c;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  display: none;
+}
+.delete-btn:hover { background: #e03e5a; }
+
+/* Форма отзыва */
+.review-form {
+  background: #f8f9fa;
+  padding: 2rem;
+  border-radius: 10px;
+  margin-top: 2rem;
+}
+.review-form input, .review-form textarea {
+  width: 100%;
+  padding: 0.8rem;
+  margin-bottom: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+.stars {
+  display: flex;
+  gap: 0.2rem;
+  cursor: pointer;
+  font-size: 2rem;
+}
+.star { color: #ddd; transition: color 0.2s; }
+.star.active { color: #00a8ff; }
+#loginStatus { margin-top: 1rem; font-weight: bold; }
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  background: #f0f0f0;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+header {
+  background-color: #000;
+  color: #fff;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+header h1 {
+  margin: 0;
+}
+
+
+nav ul {
+  list-style: none;
+  display: flex;
+  gap: 1.5rem;
+}
+
+nav a {
+  color: #fff;
+  text-decoration: none;
+  font-weight: bold;
+}
+
+nav a:hover {
+  text-decoration: underline;
+}
+
+
+footer {
+  background-color: #222;
+  color: #ccc;
+  padding: 2rem 1rem;
+  margin-top: auto;
+}
+
+#my-contacts {
+  margin-bottom: 1rem;
+}
+
+#my-contacts h3 {
+  margin-bottom: 0.5rem;
+  font-size: 1.2rem;
+  color: #fff;
+  text-align: center;
+}
+
+.contacts-flex {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  font-size: 0.95rem;
+  text-align: center;
+}
+
+.contacts-flex p {
+  margin: 0;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.contacts-flex a {
+  color: #00ccff;
+  text-decoration: none;
+  text-align: center;
+}
+
+.contacts-flex a:hover {
+  text-decoration: underline;
+  text-align: center;
+}
+
+footer p:last-of-type {
+  margin-top: 1rem;
+  text-align: center;
+  font-size: 0.85rem;
+  color: #aaa;
+}
+
+.game-footer {
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  background-color: #f9f9f9;
+  min-height: 100px;
+}
+
+.game-footer h3 {
+  margin-bottom: 1rem;
+  font-size: 1.2rem;
+  color: #333;
+}
+
+.game-footer a {
+  display: inline-block;
+  padding: 0.6rem 1.5rem;
+  background-color: #0070f3;
+  color: white;
+  text-decoration: none;
+  border-radius: 6px;
+  font-weight: bold;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.game-footer a:hover {
+  background-color: #0056cc;
+  text-decoration: none;
+  transform: translateY(-2px);
+}
+
+/* Адаптив */
+@media (max-width: 768px) {
+  .review-item { flex-direction: column; }
+}

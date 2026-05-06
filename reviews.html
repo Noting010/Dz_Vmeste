@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Отзывы - Mini-Mini-Games</title>
+  <link rel="stylesheet" href="style_to_reviews.css">
+</head>
+<body>
+   <header>
+    <h1>Игровой сайт</h1>
+    <nav>
+      <ul>
+        <li><a href="index.html">Главная</a></li>
+        <li><a href="Title.html">Игры</a></li>
+        <li><a href="about.html">О сайте</a></li>
+        <li><a href="#my-contacts">Контакты</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main class="reviews-main">
+    <section class="hero">
+      <h2>Отзывы игроков</h2>
+      <p>Поделитесь впечатлениями о мини-играх!</p>
+      <button id="loginBtn" class="hero-btn">Авторизоваться</button>
+    </section>
+
+    <section class="reviews-container">
+      <div id="reviewsList"></div>
+      <form id="reviewForm" class="review-form" style="display: none;">
+        <input type="text" id="author" placeholder="Ваше имя" required>
+        <textarea id="text" placeholder="Ваш отзыв" required></textarea>
+        <div class="stars-container">
+          <label>Оценка:</label>
+          <div class="stars" id="stars">
+            <span class="star" data-value="1">★</span>
+            <span class="star" data-value="2">★</span>
+            <span class="star" data-value="3">★</span>
+            <span class="star" data-value="4">★</span>
+            <span class="star" data-value="5">★</span>
+          </div>
+          <span id="ratingValue">0</span>
+        </div>
+        <button type="submit">Отправить отзыв</button>
+      </form>
+    </section>
+  </main>
+
+  <!-- Модал логин -->
+  <div id="loginModal" class="modal">
+    <div class="modal-content">
+      <span class="close">&times;</span>
+      <h3>Авторизация</h3>
+      <form id="loginForm">
+        <input type="text" id="username" placeholder="Логин" required>
+        <input type="password" id="password" placeholder="Пароль" required>
+        <button type="submit">Войти</button>
+      </form>
+    </div>
+  </div>
+
+  <script src="reviews.js"></script>
+
+  <footer>
+    <div id="my-contacts" class="contacts-flex">
+      <h3>Контакты</h3>
+      <p>📧 <a href="mailto:makarow2018@inbox.ru">ForExample@mail.ru</a></p>
+      <p>📱 <a href="tel:">8 800 555 35 35</a></p>
+    </div>
+    <p>&copy; 2026 Все права защищены.</p>
+  </footer>
+</body>
+
+</html>

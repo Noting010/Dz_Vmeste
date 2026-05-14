@@ -214,6 +214,18 @@ footer p:last-of-type {
   transform: translateY(-2px);
 }
 
+.delete-btn {
+  background: #ff416c;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-left: 1rem;
+}
+.delete-btn:hover { background: #e00; }
+.review-item { display: flex; align-items: flex-start; gap: 1rem; }
+
 /* Адаптив */
 @media (max-width: 768px) {
   .review-item { flex-direction: column; }
